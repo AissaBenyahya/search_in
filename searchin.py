@@ -2,13 +2,26 @@
 import sys
 import os
 import getopt
+import codecs
 
 def search(files):
     wordlist = []
+    if os.path.exists(files[1]):
+        with open(files[1], "r") as f:
+            line = f.readlines()
+            wordlist = [x.strip() for x in line]
+    else:
+        print("ERROR: The file {} is not exist".format(files[1]))
+
     if os.path.exists(files[0]):
-        with open(files[0], "r") as f:
-            for line in f:
-                print(line)
+        with codecs.open(files[0], "r", 'iso-8859-1') as sf:
+            content = sf.read().split("\n")
+
+        for i, line in enumerate(content):
+            for word in wordlist:
+                if word in line:
+                    print("{} {} ".format(i,line))
+                    break
     else:
         print("ERROR: The file {} is not exist".format(files[0]))
 
@@ -24,31 +37,34 @@ def usage():
                  |   Copyright (c) 2021 Aissa Ben yahya - https://github.com/AissaBenyahya |
                  ###---------------------------------------------------------------------###
                  """)
-    print("usage: searchin.py -i <inputfile> [-o outputfile]")
+    print("usage: searchin.py -f <file_to_search_in> -w <wordlistfile> [-o outputfile]")
     sys.exit(2)
 
 def argHandler(argc, argv):
-    inputfile = ''
+    wordlist = ''
     outputfile = ''
+    sfile = '' # The file to search in
     if argc < 2:
         usage()
     else:
         try:                                                                           
-            opts, args = getopt.getopt(argv, "hi:o:", ["help=", "input=", "output"])     
+            opts, args = getopt.getopt(argv, "hf:w:o:", ["help=", "file=", "wordlist=", "output"])     
         except getopt.GetoptError:                                        
-            print("usage: searchin.py -i <inputfile> [-o outputfile]")   
+            print("usage: searchin.py -f <file_to_search_in> -w <wordlistfile> [-o outputfile]")
             sys.exit(2)
         for opt, arg in opts:
             if opt == "-h":
                 usage()
-            elif opt in ("-i", "--input"):
-                inputfile = arg
+            elif opt in ("-f", "--file"):
+                sfile = arg
+            elif opt in ("-w", "--wordlist"):
+                wordlist = arg
             elif opt in ("-o", "--output"):
                 outputfile = arg
             
         if not opts:    
             usage()
-        return [inputfile, outputfile]
+        return [sfile, wordlist, outputfile]
        
 def main():
     files = argHandler(len(sys.argv), sys.argv[1:])
