@@ -3,9 +3,11 @@ import sys
 import os
 import getopt
 import codecs
+import re
 
 def search(files):
     wordlist = []
+    count = 0
     if os.path.exists(files[1]):
         with open(files[1], "r") as f:
             line = f.readlines()
@@ -21,7 +23,11 @@ def search(files):
             for word in wordlist:
                 if word in line:
                     print("{} {} ".format(i,line))
+                    count = count + 1
                     break
+                else:
+                    continue
+        print("Number of matched lines are {}".format(count))
     else:
         print("ERROR: The file {} is not exist".format(files[0]))
 
